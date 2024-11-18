@@ -30,24 +30,31 @@ export const startServer = () => {
     const students = await getAllStudents();
 
     res.status(200).json({
+      message: 'Successfully found contacts!',
       data: students,
     });
   });
 
   app.get('/students/:studentId', async (req, res, next) => {
-    const { studentId } = req.params;
-    const student = await getStudentById(studentId);
+    try {
+      const { studentId } = req.params;
 
-    if (!student) {
-      res.status(404).json({
-        message: 'Student not found',
+      const student = await getStudentById(studentId);
+
+      if (!student) {
+        return res.status(404).json({
+          message: 'Student not found',
+        });
+      }
+
+      res.status(200).json({
+        status: 200,
+        message: `Successfully found student with id ${studentId}!`,
+        data: student,
       });
-      return;
+    } catch (error) {
+      next(error);
     }
-
-    res.status(200).json({
-      data: student,
-    });
   });
 
   app.use('*', (req, res, next) => {

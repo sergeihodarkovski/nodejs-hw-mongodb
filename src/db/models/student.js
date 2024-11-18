@@ -6,23 +6,22 @@ const studentsSchema = new Schema(
       type: String,
       required: true,
     },
-    age: {
-      type: Number,
-      required: true,
-    },
-    gender: {
+    phoneNumber: {
       type: String,
       required: true,
-      enum: ['male', 'female', 'other'],
     },
-    avgMark: {
-      type: Number,
-      required: true,
+    email: {
+      type: String,
     },
-    onDuty: {
+    isFavourite: {
       type: Boolean,
-      required: true,
       default: false,
+    },
+    contactType: {
+      type: String,
+      enum: ['work', 'home', 'personal'],
+      required: true,
+      default: 'personal',
     },
   },
   {
