@@ -1,4 +1,5 @@
 import { model, Schema } from 'mongoose';
+import { ROLES } from '../../constants/index.js';
 
 const usersSchema = new Schema(
   {
@@ -12,6 +13,11 @@ const usersSchema = new Schema(
       match: [/.+@.+\..+/, 'Invalid email format'],
     },
     password: { type: String, required: true },
+    role: {
+      type: String,
+      enum: [ROLES.TEACHER, ROLES.PARENT],
+      default: ROLES.PARENT,
+    },
   },
   { timestamps: true, versionKey: false },
 );
