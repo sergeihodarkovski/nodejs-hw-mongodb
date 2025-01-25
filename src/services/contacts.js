@@ -13,9 +13,7 @@ export const getAllContacts = async ({
   const skip = (page - 1) * perPage;
 
   const contactsQuery = ContactsCollection.find({ userId });
-  const contactsCount = await ContactsCollection.find({ userId })
-    .merge(contactsQuery)
-    .countDocuments();
+  const contactsCount = await ContactsCollection.countDocuments({ userId });
 
   const contacts = await contactsQuery
     .skip(skip)
@@ -32,21 +30,15 @@ export const getAllContacts = async ({
 };
 
 export const getContactById = async (contactId, userId) => {
-  const contact = await ContactsCollection.findById({ _id: contactId, userId });
-  return contact;
+  return ContactsCollection.findOne({ _id: contactId, userId }); // Используем findOne
 };
 
 export const createContact = async (payload, userId) => {
-  const contact = await ContactsCollection.create({ ...payload, userId });
-  return contact;
+  return ContactsCollection.create({ ...payload, userId });
 };
 
 export const deleteContact = async (contactId, userId) => {
-  const contact = await ContactsCollection.findOneAndDelete({
-    _id: contactId,
-    userId,
-  });
-  return contact;
+  return ContactsCollection.findOneAndDelete({ _id: contactId, userId });
 };
 
 export const updateContact = async (
