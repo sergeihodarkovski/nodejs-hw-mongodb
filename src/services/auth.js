@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
+import mongoose from 'mongoose';
 import { UsersCollection } from '../db/models/user.js';
 import createHttpError from 'http-errors';
 import { SessionsCollection } from '../db/models/session.js';
-import { FIFTEEN_MINUTES, ONE_DAY, SMTP } from '../constants/index.js';
+import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/index.js';
 import { env } from '../utils/env.js';
 import { sendEmail } from '../utils/sendMail.js';
 
@@ -46,7 +47,16 @@ export const loginUser = async (payload) => {
 };
 
 export const logoutUser = async (sessionId) => {
-  const result = await SessionsCollection.deleteOne({ _id: sessionId });
+  if (!sessionId) {
+    throw createHttpError(400, 'Session ID is required');
+  }
+
+  const result = await SessionsCollection.deleteOne({
+    _id:
+      sessionId instanceof mongoose.Types.ObjectId
+        ? sessionId
+        : new mongoose.Types.ObjectId(sessionId),
+  });
 
   if (result.deletedCount === 0) {
     throw createHttpError(404, 'Session not found');
@@ -67,7 +77,10 @@ const createSession = () => {
 
 export const refreshUsersSession = async ({ sessionId, refreshToken }) => {
   const session = await SessionsCollection.findOne({
-    _id: sessionId,
+    _id:
+      sessionId instanceof mongoose.Types.ObjectId
+        ? sessionId
+        : new mongoose.Types.ObjectId(sessionId),
     refreshToken,
   });
 
@@ -88,7 +101,12 @@ export const refreshUsersSession = async ({ sessionId, refreshToken }) => {
     ...newSession,
   });
 
-  await SessionsCollection.deleteOne({ _id: sessionId, refreshToken });
+  await SessionsCollection.deleteOne({
+    _id:
+      sessionId instanceof mongoose.Types.ObjectId
+        ? sessionId
+        : new mongoose.Types.ObjectId(sessionId),
+  });
 
   return createdSession;
 };
@@ -98,6 +116,7 @@ export const requestResetToken = async (email) => {
   if (!user) {
     throw createHttpError(404, 'User not found');
   }
+
   const resetToken = jwt.sign(
     {
       sub: user._id,
@@ -113,7 +132,7 @@ export const requestResetToken = async (email) => {
 
   try {
     await sendEmail({
-      from: env(SMTP.SMTP_FROM),
+      from: env('SMTP_FROM'),
       to: email,
       subject: 'Reset your password',
       html: `<p>Click <a href="${resetUrl}">here</a> to reset your password!</p>`,
@@ -131,10 +150,8 @@ export const resetPassword = async (payload) => {
 
   try {
     decoded = jwt.verify(payload.token, env('JWT_SECRET'));
-  } catch (err) {
-    if (err instanceof Error)
-      throw createHttpError(401, 'Token is expired or invalid.');
-    throw err;
+  } catch {
+    throw createHttpError(401, 'Token is expired or invalid.');
   }
 
   const user = await UsersCollection.findOne({
@@ -144,6 +161,10 @@ export const resetPassword = async (payload) => {
 
   if (!user) {
     throw createHttpError(404, 'User not found');
+  }
+
+  if (!payload.password) {
+    throw createHttpError(400, 'New password is required.');
   }
 
   const encryptedPassword = await bcrypt.hash(payload.password, 10);

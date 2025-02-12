@@ -30,11 +30,11 @@ export const getAllContacts = async ({
 };
 
 export const getContactById = async (contactId, userId) => {
-  return ContactsCollection.findOne({ _id: contactId, userId }); // Используем findOne
+  return ContactsCollection.findOne({ _id: contactId, userId });
 };
 
-export const createContact = async (payload, userId) => {
-  return ContactsCollection.create({ ...payload, userId });
+export const createContact = async (payload) => {
+  return ContactsCollection.create(payload);
 };
 
 export const deleteContact = async (contactId, userId) => {
