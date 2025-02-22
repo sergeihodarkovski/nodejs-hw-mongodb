@@ -2,7 +2,7 @@ import { OAuth2Client } from 'google-auth-library';
 import path from 'node:path';
 import { readFile } from 'fs/promises';
 
-import { getEnvVar } from './getEnvVar.js';
+import { env } from './env.js';
 import createHttpError from 'http-errors';
 
 const PATH_JSON = path.join(process.cwd(), 'google-oauth.json');
@@ -17,8 +17,8 @@ try {
 }
 
 const googleOAuthClient = new OAuth2Client({
-  clientId: getEnvVar('GOOGLE_AUTH_CLIENT_ID'),
-  clientSecret: getEnvVar('GOOGLE_AUTH_CLIENT_SECRET'),
+  clientId: env('GOOGLE_AUTH_CLIENT_ID'),
+  clientSecret: env('GOOGLE_AUTH_CLIENT_SECRET'),
   redirectUri: oauthConfig.web.redirect_uris[0],
 });
 
@@ -41,7 +41,7 @@ export const validateCode = async (code) => {
 
     const ticket = await googleOAuthClient.verifyIdToken({
       idToken: response.tokens.id_token,
-      audience: getEnvVar('GOOGLE_AUTH_CLIENT_ID'),
+      audience: env('GOOGLE_AUTH_CLIENT_ID'),
     });
 
     return ticket;
