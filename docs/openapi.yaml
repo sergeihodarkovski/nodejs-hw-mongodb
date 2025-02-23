@@ -12,7 +12,6 @@ tags:
   - name: Auth
     description: Auth operations.
 servers:
-  - url: http://localhost:3000
   - url: https://nodejs-hw-mongodb-mgkc.onrender.com
 paths:
   /contacts:
