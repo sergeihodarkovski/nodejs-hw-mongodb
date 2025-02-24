@@ -2,42 +2,51 @@ tags:
   - Contacts
 summary: Create contact
 operationId: createContact
-description: 'Create a contact with payload'
+description: 'Create a contact with the provided data and an optional photo.'
 security:
   - bearerAuth: []
 requestBody:
+  required: true
   content:
     multipart/form-data:
       schema:
         type: object
         required:
           - name
-          - email
-          - phone
+          - phoneNumber
+          - contactType
         properties:
           name:
+            type: string
             description: "Contact's name"
-            type: string
             example: 'John Doe'
-          email:
-            description: "Contact's email"
+          phoneNumber:
             type: string
-            example: 'john@example.com'
-          phone:
             description: "Contact's phone number"
-            type: string
             example: '+1234567890'
-          address:
-            description: "Contact's address"
+          contactType:
             type: string
-            example: '123 Main St, Cityville'
+            description: 'Type of contact'
+            enum:
+              - work
+              - home
+              - personal
+            example: 'personal'
+          email:
+            type: string
+            description: "Contact's email (optional)"
+            example: 'john@example.com'
+          isFavourite:
+            type: boolean
+            description: 'Is this contact a favourite? (optional)'
+            example: false
           photo:
-            description: "Contact's photo"
             type: string
             format: binary
+            description: 'Optional contact photo'
 responses:
   '201':
-    description: Creates a contact
+    description: Contact successfully created
     content:
       application/json:
         schema:
@@ -54,7 +63,30 @@ responses:
               type: string
               example: Successfully created a contact!
             data:
-              type: object
               $ref: '../../components/schemas/contact.yaml'
-  '404':
-    $ref: '../../components/responses/404.yaml'
+  '400':
+    description: Bad request. Invalid input data.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 400
+            message:
+              type: string
+              example: Invalid request. Name, phoneNumber, and contactType are required.
+  '401':
+    description: Unauthorized. Token is missing or invalid.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 401
+            message:
+              type: string
+              example: Unauthorized. Please provide a valid token.
