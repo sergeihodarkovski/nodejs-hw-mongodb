@@ -12,9 +12,33 @@ parameters:
     description: ID of the contact to delete
     schema:
       type: string
-      example: '65ca67e7ae7f10c88b598384'
+      example: '65e4decdd286b30065d54af9'
 responses:
-  '200':
-    description: Contact deleted successfully
+  '204':
+    description: Contact deleted successfully (no content)
+  '401':
+    description: Unauthorized. Token is missing or invalid.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 401
+            message:
+              type: string
+              example: 'Unauthorized. Please provide a valid token.'
   '404':
-    $ref: '../../../components/responses/404.yaml'
+    description: Contact not found.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            status:
+              type: integer
+              example: 404
+            message:
+              type: string
+              example: 'Contact not found.'

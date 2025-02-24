@@ -26,7 +26,6 @@ paths:
       $ref: '../swagger/paths/contacts/{id}/patch.yaml'
     delete:
       $ref: '../swagger/paths/contacts/{id}/delete.yaml'
-
 components:
   securitySchemes:
     bearerAuth:
