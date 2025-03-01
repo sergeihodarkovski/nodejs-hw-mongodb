@@ -11,15 +11,27 @@ parameters:
     description: Page number for pagination
     schema:
       type: integer
-      default: 1
       example: 1
   - in: query
     name: perPage
     description: Number of contacts per page
     schema:
       type: integer
-      default: 10
       example: 10
+  - in: query
+    name: sortBy
+    description: Field by which to sort the contacts
+    schema:
+      type: string
+      enum: [_id, name, phoneNumber, contactType, createdAt]
+      example: name
+  - in: query
+    name: sortOrder
+    description: Sorting order (ascending or descending)
+    schema:
+      type: string
+      enum: [asc, desc]
+      example: asc
 responses:
   '200':
     description: Successfully retrieved the contacts list
@@ -28,10 +40,37 @@ responses:
         schema:
           type: object
           properties:
-            contacts:
-              type: array
-              items:
-                $ref: '../../components/schemas/contact.yaml'
+            status:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: 'Successfully found contacts!'
+            data:
+              type: object
+              required:
+                - contacts
+                - page
+                - perPage
+                - totalItems
+                - totalPages
+              properties:
+                contacts:
+                  type: array
+                  items:
+                    $ref: '../../components/schemas/contact.yaml'
+                page:
+                  type: integer
+                  example: 1
+                perPage:
+                  type: integer
+                  example: 10
+                totalItems:
+                  type: integer
+                  example: 50
+                totalPages:
+                  type: integer
+                  example: 5
   '401':
     description: Unauthorized. Token is missing or invalid.
     content:
